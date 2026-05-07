@@ -1,0 +1,212 @@
+.nru-root {
+  --nru-width: 850px;
+  --nru-start-color: #00c853;
+  --nru-end-color: #d50000;
+  --nru-middle-color: #ffffff;
+  --nru-line-color: #000000;
+  --nru-card-bg: #f7f7f7;
+  --nru-card-border: #222222;
+  --nru-card-gap: 18px;
+
+  width: var(--nru-width);
+  max-width: 100%;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.nru-empty {
+  text-align: center;
+  color: #777;
+  padding: 40px;
+  border: 2px dashed #aaa;
+  border-radius: 14px;
+  background: #f7f7f7;
+}
+
+.nru-timeline {
+  width: 100%;
+}
+
+.nru-stop {
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: 120px;
+}
+
+.nru-stop:not(:last-child) {
+  margin-bottom: var(--nru-card-gap);
+}
+
+.nru-stop[draggable="true"] {
+  cursor: grab;
+}
+
+.nru-stop.nru-dragging {
+  opacity: 0.45;
+}
+
+.nru-stop.nru-drop-target .nru-card {
+  outline: 3px dashed #777;
+  outline-offset: 4px;
+}
+
+.nru-track {
+  width: 80px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.nru-track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: calc(var(--nru-card-gap) * -1);
+  width: 8px;
+  background: var(--nru-line-color);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nru-first .nru-track::before {
+  top: 50%;
+}
+
+.nru-last .nru-track::before {
+  bottom: 50%;
+}
+
+.nru-only .nru-track::before {
+  display: none;
+}
+
+.nru-dot {
+  width: 28px;
+  height: 28px;
+  border: 5px solid var(--nru-line-color);
+  border-radius: 50%;
+  background: var(--nru-middle-color);
+  z-index: 2;
+  margin-top: 46px;
+  box-sizing: border-box;
+}
+
+.nru-first .nru-dot {
+  background: var(--nru-start-color);
+}
+
+.nru-last .nru-dot {
+  background: var(--nru-end-color);
+}
+
+.nru-only .nru-dot {
+  background: var(--nru-start-color);
+}
+
+.nru-connector {
+  width: 55px;
+  height: 8px;
+  background: var(--nru-line-color);
+  margin-left: -15px;
+  flex-shrink: 0;
+}
+
+.nru-card {
+  flex: 1;
+  min-height: 95px;
+  border: 2px solid var(--nru-card-border);
+  border-radius: 14px;
+  background: var(--nru-card-bg);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.nru-address {
+  line-height: 1.8;
+  font-size: 18px;
+  color: #333;
+  flex: 1;
+}
+
+.nru-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.nru-order {
+  font-weight: bold;
+  font-size: 17px;
+  color: #333;
+  min-width: 55px;
+  text-align: right;
+}
+
+.nru-editable {
+  min-height: 24px;
+  border-radius: 4px;
+  padding: 0 3px;
+  outline: none;
+}
+
+.nru-editable:empty::before {
+  content: attr(data-placeholder);
+  color: #9a9a9a;
+}
+
+.nru-editable:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.nru-remove {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.nru-remove:hover {
+  opacity: 0.8;
+}
+
+.nru-drag-handle {
+  color: #555;
+  font-size: 20px;
+  line-height: 28px;
+  user-select: none;
+}
+
+@media (max-width: 650px) {
+  .nru-track {
+    width: 45px;
+  }
+
+  .nru-connector {
+    width: 30px;
+  }
+
+  .nru-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .nru-address {
+    font-size: 15px;
+  }
+
+  .nru-side {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>node-route-ui demo</title>
+
+  <style>
+.nru-root {
+  --nru-width: 850px;
+  --nru-start-color: #00c853;
+  --nru-end-color: #d50000;
+  --nru-middle-color: #ffffff;
+  --nru-line-color: #000000;
+  --nru-card-bg: #f7f7f7;
+  --nru-card-border: #222222;
+  --nru-card-gap: 18px;
+
+  width: var(--nru-width);
+  max-width: 100%;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.nru-empty {
+  text-align: center;
+  color: #777;
+  padding: 40px;
+  border: 2px dashed #aaa;
+  border-radius: 14px;
+  background: #f7f7f7;
+}
+
+.nru-timeline {
+  width: 100%;
+}
+
+.nru-stop {
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: 120px;
+}
+
+.nru-stop:not(:last-child) {
+  margin-bottom: var(--nru-card-gap);
+}
+
+.nru-stop[draggable="true"] {
+  cursor: grab;
+}
+
+.nru-stop.nru-dragging {
+  opacity: 0.45;
+}
+
+.nru-stop.nru-drop-target .nru-card {
+  outline: 3px dashed #777;
+  outline-offset: 4px;
+}
+
+.nru-track {
+  width: 80px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.nru-track::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: calc(var(--nru-card-gap) * -1);
+  width: 8px;
+  background: var(--nru-line-color);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nru-first .nru-track::before {
+  top: 50%;
+}
+
+.nru-last .nru-track::before {
+  bottom: 50%;
+}
+
+.nru-only .nru-track::before {
+  display: none;
+}
+
+.nru-dot {
+  width: 28px;
+  height: 28px;
+  border: 5px solid var(--nru-line-color);
+  border-radius: 50%;
+  background: var(--nru-middle-color);
+  z-index: 2;
+  margin-top: 46px;
+  box-sizing: border-box;
+}
+
+.nru-first .nru-dot {
+  background: var(--nru-start-color);
+}
+
+.nru-last .nru-dot {
+  background: var(--nru-end-color);
+}
+
+.nru-only .nru-dot {
+  background: var(--nru-start-color);
+}
+
+.nru-connector {
+  width: 55px;
+  height: 8px;
+  background: var(--nru-line-color);
+  margin-left: -15px;
+  flex-shrink: 0;
+}
+
+.nru-card {
+  flex: 1;
+  min-height: 95px;
+  border: 2px solid var(--nru-card-border);
+  border-radius: 14px;
+  background: var(--nru-card-bg);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+.nru-address {
+  line-height: 1.8;
+  font-size: 18px;
+  color: #333;
+  flex: 1;
+}
+
+.nru-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.nru-order {
+  font-weight: bold;
+  font-size: 17px;
+  color: #333;
+  min-width: 55px;
+  text-align: right;
+}
+
+.nru-editable {
+  min-height: 24px;
+  border-radius: 4px;
+  padding: 0 3px;
+  outline: none;
+}
+
+.nru-editable:empty::before {
+  content: attr(data-placeholder);
+  color: #9a9a9a;
+}
+
+.nru-editable:focus {
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.nru-remove {
+  border: 0;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+.nru-remove:hover {
+  opacity: 0.6;
+}
+
+.nru-drag-handle {
+  color: #555;
+  font-size: 20px;
+  line-height: 28px;
+  user-select: none;
+}
+
+@media (max-width: 650px) {
+  .nru-track {
+    width: 45px;
+  }
+
+  .nru-connector {
+    width: 30px;
+  }
+
+  .nru-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .nru-address {
+    font-size: 15px;
+  }
+
+  .nru-side {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}
+
+
+    body {
+      margin: 0;
+      background: #eeeeee;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    .demo-controls {
+      width: 850px;
+      max-width: 100%;
+      margin: 0 auto 25px auto;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .demo-controls button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 8px;
+      background: #1700d8;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .demo-controls button.secondary {
+      background: #222;
+    }
+
+    .demo-note {
+      width: 850px;
+      max-width: 100%;
+      margin: 0 auto 20px auto;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    pre {
+      width: 850px;
+      max-width: 100%;
+      margin: 25px auto 0 auto;
+      background: #222;
+      color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      overflow: auto;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-controls">
+    <button id="addBlank">Add blank location +</button>
+    <button id="addExample">Add example location</button>
+    <button class="secondary" id="clear">Clear</button>
+  </div>
+
+  <div class="demo-note">
+    Click inside a card to edit it. Use the black X to remove a card. Drag a card up or down to change the order.
+  </div>
+
+  <div id="route"></div>
+
+  <pre id="output">[]</pre>
+
+  <script>
+class NodeRouteUI {
+  constructor(options = {}) {
+    this.options = {
+      target: "body",
+      startColor: "#00c853",
+      endColor: "#d50000",
+      middleColor: "#ffffff",
+      lineColor: "#000000",
+      cardBackground: "#f7f7f7",
+      cardBorderColor: "#222222",
+      cardGap: 18,
+      width: "850px",
+      editable: true,
+      removable: true,
+      sortable: true,
+      emptyText: "No locations added yet",
+      items: [],
+      onChange: null,
+      ...options
+    };
+
+    this.items = Array.isArray(this.options.items)
+      ? this.options.items.map(normaliseItem)
+      : [];
+
+    this.dragFromIndex = null;
+
+    this.container =
+      typeof this.options.target === "string"
+        ? document.querySelector(this.options.target)
+        : this.options.target;
+
+    if (!this.container) {
+      throw new Error("NodeRouteUI target was not found.");
+    }
+
+    this.container.classList.add("nru-root");
+    this.render();
+  }
+
+  addBlank() {
+    this.addItem({});
+  }
+
+  addItem(item = {}) {
+    this.items.push(normaliseItem(item));
+    this.render();
+    this.emitChange();
+  }
+
+  removeItem(index) {
+    if (!this.items[index]) return;
+    this.items.splice(index, 1);
+    this.render();
+    this.emitChange();
+  }
+
+  moveItem(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    if (!this.items[fromIndex]) return;
+    if (toIndex < 0 || toIndex >= this.items.length) return;
+
+    const [item] = this.items.splice(fromIndex, 1);
+    this.items.splice(toIndex, 0, item);
+
+    this.render();
+    this.emitChange();
+  }
+
+  setItems(items = []) {
+    this.items = Array.isArray(items) ? items.map(normaliseItem) : [];
+    this.render();
+    this.emitChange();
+  }
+
+  getItems() {
+    return this.items.map(item => ({ ...item }));
+  }
+
+  clear() {
+    this.items = [];
+    this.render();
+    this.emitChange();
+  }
+
+  updateOptions(options = {}) {
+    this.options = {
+      ...this.options,
+      ...options
+    };
+
+    this.render();
+  }
+
+  emitChange() {
+    if (typeof this.options.onChange === "function") {
+      this.options.onChange(this.getItems());
+    }
+  }
+
+  updateItemField(index, field, value) {
+    if (!this.items[index]) return;
+    this.items[index][field] = value;
+    this.emitChange();
+  }
+
+  render() {
+    this.container.innerHTML = "";
+    this.container.style.setProperty("--nru-width", this.options.width);
+    this.container.style.setProperty("--nru-start-color", this.options.startColor);
+    this.container.style.setProperty("--nru-end-color", this.options.endColor);
+    this.container.style.setProperty("--nru-middle-color", this.options.middleColor);
+    this.container.style.setProperty("--nru-line-color", this.options.lineColor);
+    this.container.style.setProperty("--nru-card-bg", this.options.cardBackground);
+    this.container.style.setProperty("--nru-card-border", this.options.cardBorderColor);
+    this.container.style.setProperty("--nru-card-gap", `${Number(this.options.cardGap)}px`);
+
+    if (this.items.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "nru-empty";
+      empty.textContent = this.options.emptyText;
+      this.container.appendChild(empty);
+      return;
+    }
+
+    const timeline = document.createElement("div");
+    timeline.className = "nru-timeline";
+
+    this.items.forEach((item, index) => {
+      const stop = document.createElement("div");
+      stop.className = "nru-stop";
+      stop.dataset.index = String(index);
+
+      if (index === 0) stop.classList.add("nru-first");
+      if (index === this.items.length - 1) stop.classList.add("nru-last");
+      if (this.items.length === 1) stop.classList.add("nru-only");
+
+      if (this.options.sortable) {
+        stop.draggable = true;
+      }
+
+      stop.appendChild(this.createTrack());
+      stop.appendChild(this.createConnector());
+      stop.appendChild(this.createCard(item, index));
+
+      this.addDragEvents(stop, index);
+      timeline.appendChild(stop);
+    });
+
+    this.container.appendChild(timeline);
+  }
+
+  createTrack() {
+    const track = document.createElement("div");
+    track.className = "nru-track";
+
+    const dot = document.createElement("div");
+    dot.className = "nru-dot";
+
+    track.appendChild(dot);
+    return track;
+  }
+
+  createConnector() {
+    const connector = document.createElement("div");
+    connector.className = "nru-connector";
+    return connector;
+  }
+
+  createCard(item, index) {
+    const card = document.createElement("div");
+    card.className = "nru-card";
+
+    const address = document.createElement("div");
+    address.className = "nru-address";
+
+    address.appendChild(this.createField(index, "house", item.house, "[House Name / No]"));
+    address.appendChild(this.createField(index, "street", item.street, "[Street]"));
+    address.appendChild(this.createField(index, "postcode", item.postcode, "[Postcode]"));
+
+    const side = document.createElement("div");
+    side.className = "nru-side";
+
+    side.appendChild(this.createField(index, "order", item.order, "[Order]", "nru-order"));
+
+    if (this.options.removable) {
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "nru-remove";
+      removeButton.textContent = "×";
+      removeButton.title = "Remove location";
+      removeButton.addEventListener("click", event => {
+        event.stopPropagation();
+        this.removeItem(index);
+      });
+      side.appendChild(removeButton);
+    }
+
+    if (this.options.sortable) {
+      const handle = document.createElement("div");
+      handle.className = "nru-drag-handle";
+      handle.textContent = "↕";
+      handle.title = "Drag to move";
+      side.appendChild(handle);
+    }
+
+    card.appendChild(address);
+    card.appendChild(side);
+    return card;
+  }
+
+  createField(index, field, value, placeholder, className = "") {
+    const el = document.createElement("div");
+
+    if (className) {
+      el.className = className;
+    }
+
+    if (this.options.editable) {
+      el.contentEditable = "true";
+      el.dataset.placeholder = placeholder;
+      el.textContent = value || "";
+      el.classList.add("nru-editable");
+
+      el.addEventListener("input", () => {
+        this.updateItemField(index, field, el.textContent.trim());
+      });
+
+      el.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          el.blur();
+        }
+      });
+    } else {
+      el.textContent = value || placeholder;
+    }
+
+    return el;
+  }
+
+  addDragEvents(stop, index) {
+    if (!this.options.sortable) return;
+
+    stop.addEventListener("dragstart", event => {
+      this.dragFromIndex = index;
+      stop.classList.add("nru-dragging");
+
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(index));
+      }
+    });
+
+    stop.addEventListener("dragend", () => {
+      this.dragFromIndex = null;
+      this.container.querySelectorAll(".nru-stop").forEach(el => {
+        el.classList.remove("nru-dragging", "nru-drop-target");
+      });
+    });
+
+    stop.addEventListener("dragover", event => {
+      event.preventDefault();
+      stop.classList.add("nru-drop-target");
+
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "move";
+      }
+    });
+
+    stop.addEventListener("dragleave", () => {
+      stop.classList.remove("nru-drop-target");
+    });
+
+    stop.addEventListener("drop", event => {
+      event.preventDefault();
+      stop.classList.remove("nru-drop-target");
+
+      const fromIndex = this.dragFromIndex;
+      const toIndex = Number(stop.dataset.index);
+
+      this.dragFromIndex = null;
+
+      if (Number.isInteger(fromIndex) && Number.isInteger(toIndex)) {
+        this.moveItem(fromIndex, toIndex);
+      }
+    });
+  }
+}
+
+function normaliseItem(item = {}) {
+  return {
+    house: item.house || "",
+    street: item.street || "",
+    postcode: item.postcode || "",
+    order: item.order || ""
+  };
+}
+
+
+    const output = document.querySelector("#output");
+
+    const route = new NodeRouteUI({
+      target: "#route",
+      startColor: "#00c853",
+      endColor: "#d50000",
+      cardGap: 18,
+      editable: true,
+      removable: true,
+      sortable: true,
+      onChange(items) {
+        output.textContent = JSON.stringify(items, null, 2);
+      }
+    });
+
+    document.querySelector("#addBlank").addEventListener("click", () => {
+      route.addBlank();
+    });
+
+    document.querySelector("#addExample").addEventListener("click", () => {
+      route.addItem({
+        house: "Station Approach",
+        street: "Manchester",
+        postcode: "M1 1AA",
+        order: String(route.getItems().length + 1)
+      });
+    });
+
+    document.querySelector("#clear").addEventListener("click", () => {
+      route.clear();
+    });
+  </script>
+</body>
+</html>

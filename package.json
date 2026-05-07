@@ -1,0 +1,27 @@
+{
+  "name": "node-route-ui",
+  "version": "0.2.2",
+  "description": "A small route timeline UI for showing linked stops and locations.",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./style.css": "./src/style.css"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "route",
+    "timeline",
+    "stops",
+    "journey",
+    "ui",
+    "drag-drop"
+  ],
+  "author": "",
+  "license": "MIT"
+}
