@@ -9,7 +9,7 @@ It shows a list of linked locations with a start marker, end marker and connecti
 Open this file directly:
 
 ```txt
-demo/index.html
+demo/node-route-ui-demo.html
 ```
 
 The demo has all CSS and JavaScript built into the page, so it works by double-clicking the HTML file.
